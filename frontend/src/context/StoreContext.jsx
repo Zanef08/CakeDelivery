@@ -3,7 +3,7 @@ import axios from "axios";
 
 export const StoreContext = createContext(null);
 
-const StoreContextProvider = (props) => {
+export const StoreContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
   const [showAddToCartMessage, setShowAddToCartMessage] = useState(false);
   const url = "http://localhost:4000";
@@ -25,17 +25,18 @@ const StoreContextProvider = (props) => {
         }
       }
 
-      // Update cart on the server if token is available
       if (token) {
-        const updateEndpoint = action === "increase" ? "/api/cart/add" : "/api/cart/remove";
-        axios.post(
-          url + updateEndpoint,
-          { itemId },
-          { headers: { Authorization: `Bearer ${token}` } }
-        ).catch(error => {
-          console.error("Error while updating cart:", error);
-          // Optionally handle error here, e.g., show error message
-        });
+        const updateEndpoint =
+          action === "increase" ? "/api/cart/add" : "/api/cart/remove";
+        axios
+          .post(
+            url + updateEndpoint,
+            { itemId },
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+          .catch((error) => {
+            console.error("Error while updating cart:", error);
+          });
       }
 
       return updated;
@@ -61,19 +62,17 @@ const StoreContextProvider = (props) => {
       setCakeList(response.data.data);
     } catch (error) {
       console.error("Error while fetching cake list:", error);
-      // Optionally handle error here, e.g., show error message
     }
   };
 
   const loadCartData = async (token) => {
     try {
       const response = await axios.get(url + "/api/cart/get", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       setCartItems(response.data.cartData);
     } catch (error) {
       console.error("Error while fetching cart data:", error);
-      // Optionally handle error here, e.g., show error message
     }
   };
 
