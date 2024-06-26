@@ -1,152 +1,185 @@
 import React, { useContext, useState, useEffect } from "react";
-import "./PlaceOrder.css";
-import { StoreContext } from "../../context/StoreContext";
 import { formatPrice } from "../../utils/Utils";
+import { StoreContext } from "../../context/StoreContext";
+import "./PlaceOrder.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const PlaceOrder = () => {
   const { getTotalCartAmount, token, cake_list, cartItems, url } =
     useContext(StoreContext);
-  const deliveryFee = getTotalCartAmount() === 0 ? 0 : 2000;
-  const total = getTotalCartAmount() + deliveryFee;
+  const totalCartAmount = getTotalCartAmount();
+  const deliveryFee = totalCartAmount === 0 ? 0 : 2000;
+  const finalTotal = totalCartAmount + deliveryFee;
 
   const [data, setData] = useState({
     firstName: "",
     lastName: "",
+    email: "",
+    street: "",
+    city: "",
+    state: "",
+    zipcode: "",
+    country: "",
     phone: "",
-    address: "",
-    deliveryDate: "",
-    deliveryTime: "",
   });
 
   const onChangeHandler = (event) => {
-    const name = event.target.name;
-    const value = event.target.value;
+    const { name, value } = event.target;
     setData((data) => ({ ...data, [name]: value }));
   };
 
   const placeOrder = async (event) => {
     event.preventDefault();
     let orderItems = [];
-    cake_list.map((item) => {
+    cake_list.forEach((item) => {
       if (cartItems[item._id] > 0) {
-        let itemInfo = item;
-        itemInfo["quantity"] = cartItems[item._id];
+        let itemInfo = { ...item, quantity: cartItems[item._id] };
         orderItems.push(itemInfo);
       }
     });
     let orderData = {
-      userId: token,
       address: data,
       items: orderItems,
-      amount: getTotalCartAmount() + 2000,
+      amount: finalTotal,
     };
-    let response = await axios.post(url + "/api/order/place", orderData, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
 
-    if (response.data.success) {
-      const { session_url } = response.data;
-      window.location.replace(session_url);
-    } else {
-      alert("Error");
+    const orderUrl = url + "/api/order/place";
+    console.log("Placing order to URL:", orderUrl);
+    console.log("Order Data:", orderData);
+
+    try {
+      let response = await axios.post(orderUrl, orderData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data.success) {
+        const { session_url } = response.data;
+        window.location.replace(session_url);
+      } else {
+        alert("Error");
+      }
+    } catch (error) {
+      console.error("Error placing order:", error);
+      alert("Error placing order");
     }
   };
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!token) {
-      navigate("/cart");
-    } else if (getTotalCartAmount() === 0) {
+    if (!token || totalCartAmount === 0) {
       navigate("/cart");
     }
-  }, [token]);
+  }, [token, totalCartAmount, navigate]);
+
   return (
-    <form onSubmit={placeOrder} className="place-order">
-      <div className="place-order-left">
-        <p className="title">Delivery Information</p>
-        <div className="multi-fields">
+    <div>
+      <form onSubmit={placeOrder} action="" className="place-order">
+        <div className="place-order-left">
+          <p className="title">Delivery Information</p>
+          <div className="multi-fields">
+            <input
+              required
+              name="firstName"
+              onChange={onChangeHandler}
+              value={data.firstName}
+              type="text"
+              placeholder="First name"
+            />
+            <input
+              required
+              name="lastName"
+              onChange={onChangeHandler}
+              value={data.lastName}
+              type="text"
+              placeholder="Last name"
+            />
+          </div>
           <input
             required
-            type="text"
-            name="firstName"
-            placeholder="First name.."
+            name="email"
             onChange={onChangeHandler}
-            value={data.firstName}
+            value={data.email}
+            type="email"
+            placeholder="Email Address"
           />
-        </div>
-        <div className="multi-fields">
           <input
             required
-            type="text"
-            name="lastName"
-            placeholder="Last name.."
+            name="street"
             onChange={onChangeHandler}
-            value={data.lastName}
+            value={data.street}
+            type="text"
+            placeholder="Street"
           />
-        </div>
-        <div className="multi-fields">
+          <div className="multi-fields">
+            <input
+              required
+              name="city"
+              onChange={onChangeHandler}
+              value={data.city}
+              type="text"
+              placeholder="City"
+            />
+            <input
+              required
+              name="state"
+              onChange={onChangeHandler}
+              value={data.state}
+              type="text"
+              placeholder="State"
+            />
+          </div>
+          <div className="multi-fields">
+            <input
+              required
+              name="zipcode"
+              onChange={onChangeHandler}
+              value={data.zipcode}
+              type="text"
+              placeholder="Zip Code"
+            />
+            <input
+              required
+              name="country"
+              onChange={onChangeHandler}
+              value={data.country}
+              type="text"
+              placeholder="Country"
+            />
+          </div>
           <input
             required
-            type="text"
             name="phone"
-            placeholder="Phone"
             onChange={onChangeHandler}
             value={data.phone}
-          />
-        </div>
-        <div className="multi-fields">
-          <input
-            required
             type="text"
-            name="address"
-            placeholder="Your Address"
-            onChange={onChangeHandler}
-            value={data.address}
+            placeholder="Phone"
           />
         </div>
-        <div className="multi-fields">
-          <input
-            required
-            type="date"
-            name="deliveryDate"
-            onChange={onChangeHandler}
-            value={data.deliveryDate}
-          />
-          <input
-            required
-            type="time"
-            name="deliveryTime"
-            onChange={onChangeHandler}
-            value={data.deliveryTime}
-          />
-        </div>
-      </div>
-      <div className="place-order-right">
-        <div className="cart-total">
-          <h2>Cart Totals</h2>
-          <div>
-            <div className="cart-total-details">
-              <p>Subtotal</p>
-              <p>{formatPrice(getTotalCartAmount())}</p>
+        <div className="place-order-right">
+          <div className="cart-total">
+            <h2>Cart Totals</h2>
+            <div>
+              <div className="cart-total-details">
+                <p>Subtotal</p>
+                <p>{formatPrice(totalCartAmount)}</p>
+              </div>
+              <hr />
+              <div className="cart-total-details">
+                <p>Delivery Fee</p>
+                <p>{formatPrice(deliveryFee)}</p>
+              </div>
+              <hr />
+              <div className="cart-total-details">
+                <b>Total</b>
+                <b>{formatPrice(finalTotal)}</b>
+              </div>
             </div>
-            <hr />
-            <div className="cart-total-details">
-              <p>Delivery Fee</p>
-              <p>{formatPrice(deliveryFee)}</p>
-            </div>
-            <hr />
-            <div className="cart-total-details">
-              <b>Total</b>
-              <b>{formatPrice(total)}</b>
-            </div>
+            <button type="submit">Payment</button>
           </div>
-          <button type="submit">Proceed to Payment</button>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 };
 
