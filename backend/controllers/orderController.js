@@ -6,23 +6,28 @@ import Stripe from "stripe";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const placeOrder = async (req, res) => {
-  const frontend_url = "http://localhost:5173";
+  const frontendUrl = "http://localhost:5173";
+
   try {
     const token = req.headers.authorization.split(" ")[1];
     const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
     const userId = decodedToken.id;
+
+    console.log("Decoded Token:", decodedToken);
+
     const newOrder = new Order({
-      userId: userId,
+      userId,
       items: req.body.items,
       amount: req.body.amount,
       address: req.body.address,
     });
 
-    await newOrder.save();
+    console.log("New Order:", newOrder);
 
+    await newOrder.save();
     await User.findByIdAndUpdate(userId, { cartData: {} });
 
-    const line_items = req.body.items.map((item) => ({
+    const lineItems = req.body.items.map((item) => ({
       price_data: {
         currency: "vnd",
         product_data: {
@@ -33,7 +38,7 @@ const placeOrder = async (req, res) => {
       quantity: item.quantity,
     }));
 
-    line_items.push({
+    lineItems.push({
       price_data: {
         currency: "vnd",
         product_data: {
@@ -44,45 +49,48 @@ const placeOrder = async (req, res) => {
       quantity: 1,
     });
 
+    console.log("Line Items:", lineItems);
+
     const session = await stripe.checkout.sessions.create({
-      line_items: line_items,
+      line_items: lineItems,
       mode: "payment",
-      success_url: `${frontend_url}/verify?success=true&orderId=${newOrder._id}`,
-      cancel_url: `${frontend_url}/verify?success=false&orderId=${newOrder._id}`,
+      success_url: `${frontendUrl}/verify?success=true&orderId=${newOrder._id}`,
+      cancel_url: `${frontendUrl}/verify?success=false&orderId=${newOrder._id}`,
     });
+
+    console.log("Stripe Session:", session);
 
     res.json({ success: true, session_url: session.url });
   } catch (error) {
     console.error("Error placing order:", error);
-    res.json({ success: false, message: "Failed to place order" });
+    res.status(500).json({ success: false, message: "Failed to place order" });
   }
 };
 
 const verifyOrder = async (req, res) => {
   const { orderId, success } = req.body;
+
   try {
-    if (success == "true") {
+    if (success === "true") {
       await Order.findByIdAndUpdate(orderId, { payment: true });
-      res.json({ success: true, message: "Paid" });
+      res.json({ success: true, message: "Order paid successfully" });
     } else {
       await Order.findByIdAndDelete(orderId);
-      res.json({ success: false, message: "Not Paid" });
+      res.json({ success: false, message: "Order not paid" });
     }
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: "Error" });
+    console.error("Error verifying order:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
 const userOrders = async (req, res) => {
   try {
-    const orders = await Order.find({
-      userId: req.userId,
-    });
+    const orders = await Order.find({ userId: req.userId });
     res.json({ success: true, data: orders });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: "Error" });
+    console.error("Error fetching user orders:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 

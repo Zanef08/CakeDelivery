@@ -56,10 +56,14 @@ const PlaceOrder = () => {
         const { session_url } = response.data;
         window.location.replace(session_url);
       } else {
-        alert("Error");
+        console.error("Order placement failed:", response.data.message);
+        alert(response.data.message);
       }
     } catch (error) {
-      console.error("Error placing order:", error);
+      console.error(
+        "Error placing order:",
+        error.response ? error.response.data : error.message
+      );
       alert("Error placing order");
     }
   };

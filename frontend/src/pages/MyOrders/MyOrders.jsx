@@ -46,7 +46,7 @@ const MyOrders = () => {
             <p>{formatPrice(order.amount)}</p>
             <p>Items: {order.items.length} </p>
             <p>
-              <span>&#x25cf</span> <b> {order.status} </b>
+              <span>●</span> <b> {order.status} </b>
             </p>
             <button>Track Order</button>
           </div>

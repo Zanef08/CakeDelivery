@@ -29,9 +29,12 @@
   color: black;
 }
 
-.login-popup-title ing {
+.login-popup-title button {
   width: 16px;
   cursor: pointer;
+  border: none;
+  background-color: transparent;
+  padding: 0;
 }
 
 .login-popup-inputs {
@@ -47,12 +50,12 @@
   border-radius: 4px;
 }
 
-.login-popup-container button {
+.login-popup-container .button {
   border: none;
   padding: 10px;
   border-radius: 4px;
   color: white;
-  background-color: tomato;
+  background-color: #dc5eff;
   font-size: 15px;
   cursor: pointer;
 }
@@ -68,8 +71,13 @@
   margin-top: 5px;
 }
 
+.login-popup-condition input[type="checkbox"] {
+  accent-color: #efb5ff;
+  margin-top: 5px;
+}
+
 .login-popup p span {
-  color: tomato;
+  color: #dc5eff;
   font-weight: 500;
   cursor: pointer;
 }

@@ -15,12 +15,12 @@
   font-size: 14px;
   padding: 10px 20px;
   color: #454545;
-  border: 1px solid tomato;
+  border: 1px solid #efb5ff;
 }
 my-orders-order img {
 }
 .my-orders-order p span {
-  color: tomato;
+  color: #dc5eff;
 }
 .my-orders-order p b {
   font-weight: 500;
@@ -30,7 +30,7 @@ my-orders-order img {
   border: none;
   padding: 12px 0px;
   border-radius: 4px;
-  background-color: #ffe1e1;
+  background-color: #efb5ff;
   cursor: pointer;
   color: #454545;
 }

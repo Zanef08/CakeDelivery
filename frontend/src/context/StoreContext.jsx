@@ -6,7 +6,7 @@ export const StoreContext = createContext(null);
 export const StoreContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
   const [showAddToCartMessage, setShowAddToCartMessage] = useState(false);
-  const url = "http://localhost:4000"; // Ensure this URL is correct
+  const url = "http://localhost:4000"; 
   const [token, setToken] = useState("");
   const [cake_list, setCakeList] = useState([]);
 

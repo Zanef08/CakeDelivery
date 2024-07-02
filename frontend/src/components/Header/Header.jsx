@@ -7,10 +7,10 @@ const Header = () => {
       <div className="header-contents">
         <h2>Order your favourite cake here</h2>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore ea
-          beatae dolorem excepturi animi officiis quibusdam debitis voluptatibus
-          obcaecati nemo amet ad ipsam veniam magni delectus fugiat a, deserunt
-          architecto.
+          Treat yourself to our delightful range of cakes, crafted with the
+          finest ingredients. From classic flavors to innovative creations, our
+          cakes are perfect for every occasion. Savor the sweetness and make
+          your moments memorable.
         </p>
         <button>View Menu</button>
       </div>

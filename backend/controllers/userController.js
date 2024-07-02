@@ -3,6 +3,11 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import validator from "validator";
 
+// Create a JWT token
+const createToken = (id) => {
+  return jwt.sign({ id }, process.env.SECRET_KEY, { expiresIn: "30d" });
+};
+
 // Login
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -25,21 +30,18 @@ const loginUser = async (req, res) => {
     const token = createToken(user._id);
     res.json({ success: true, token });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: "Error" });
+    console.error("Error logging in user:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
-};
-
-const createToken = (id) => {
-  return jwt.sign({ id }, process.env.SECRET_KEY, { expiresIn: "1h" });
 };
 
 // Register
 const registerUser = async (req, res) => {
-  const { name, password, email } = req.body;
+  const { name, email, password } = req.body;
+
   try {
-    const exists = await userModel.findOne({ email });
-    if (exists) {
+    const userExists = await userModel.findOne({ email });
+    if (userExists) {
       return res
         .status(400)
         .json({ success: false, message: "User already exists" });
@@ -54,20 +56,22 @@ const registerUser = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Please enter a strong password" });
     }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new userModel({
-      name: name,
-      email: email,
+      name,
+      email,
       password: hashedPassword,
     });
-    const user = await newUser.save();
-    const token = createToken(user._id);
+
+    const savedUser = await newUser.save();
+    const token = createToken(savedUser._id);
     res.json({ success: true, token });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: "Error" });
+    console.error("Error registering user:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 

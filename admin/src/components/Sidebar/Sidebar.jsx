@@ -12,7 +12,7 @@ const Sidebar = () => {
           <p>Add Cake</p>
         </NavLink>
         <NavLink to="/listCakes" className="sidebar-option">
-          <img src={assets.order_icon} alt="" />
+          <img src={assets.cake_icon} alt="" />
           <p>List Cakes</p>
         </NavLink>
         <NavLink to="/viewOrders" className="sidebar-option">
