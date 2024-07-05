@@ -94,4 +94,26 @@ const userOrders = async (req, res) => {
   }
 };
 
-export { placeOrder, verifyOrder, userOrders };
+const listOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({});
+    res.json({ success: true, data: orders })
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+
+  }
+}
+
+// api for updating order status
+const updateOrderStatus = async (req, res) => {
+  try {
+    await Order.findByIdAndUpdate(req.body.orderId, { status: req.body.status })
+    res.json({success:true, message: "Status updated"})
+  } catch (error) {
+    console.log(error);
+    res.json({succes: false, message: "Error"})
+  }
+}
+
+export { placeOrder, verifyOrder, userOrders, listOrders, updateOrderStatus };
