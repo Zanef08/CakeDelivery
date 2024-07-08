@@ -51,14 +51,15 @@ const ViewOrders = ({ url }) => {
                     }
                   })}
                 </p>
-                <p className="order-item-name">{order.address.firstName + " " + order.address.lastName}</p>
-                <p className="order-item-address">
-                  {order.address.address}
+                <p className="order-item-name">{order.address.userName}</p>
+                <p className="order-item-address"> Address:  
+                   {order.address.address}
                 </p>
-                <p className="order-item-phone">{order.address.phone}</p>
+                <p className="order-item-phone">Phone Number: {order.address.phone}</p>
+                <p className='order-item-date'>Delivery Date: {order.address.dateTime}</p>
               </div>
               <p>Items: {order.items.length}</p>
-              <p>Price: ${order.price}</p>
+              <p>Price: ${order.amount}</p>
               <select onChange={(event) => statusHandler(event, order._id)} value={order.status}>
                 <option value="Cake Processing">Cake Processing</option>
                 <option value="Out for delivery">Out for delivery</option>
