@@ -3,6 +3,7 @@ import "./LoginPopup.css";
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../context/StoreContext";
 import axios from "axios";
+import { notification } from "antd";
 
 const LoginPopup = ({ setShowLogin }) => {
   const { url, setToken } = useContext(StoreContext);
@@ -18,8 +19,34 @@ const LoginPopup = ({ setShowLogin }) => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+  const validateForm = () => {
+    if (!formData.email.includes("@")) {
+      notification.error({
+        message: "Invalid email address",
+      });
+      return false;
+    }
+    if (formData.password.length < 6) {
+      notification.error({
+        message: "Password must be at least 6 characters long",
+      });
+      return false;
+    }
+    if (currState === "Sign Up" && formData.name.trim() === "") {
+      notification.error({
+        message: "Name cannot be empty",
+      });
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
+
     let endpoint =
       url + (currState === "Login" ? "/api/user/login" : "/api/user/register");
 
@@ -30,11 +57,15 @@ const LoginPopup = ({ setShowLogin }) => {
         localStorage.setItem("token", response.data.token);
         setShowLogin(false);
       } else {
-        alert(response.data.message);
+        notification.error({
+          message: response.data.message,
+        });
       }
     } catch (error) {
       console.error("Error during login/register:", error);
-      alert("An error occurred. Please try again.");
+      notification.error({
+        message: error.response?.data?.message || "An error occurred. Please try again.",
+      });
     }
   };
 
